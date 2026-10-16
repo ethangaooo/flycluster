@@ -19,21 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## 关于本仓库中的第三方数据（重要）
-
-上面这份 MIT 许可**只覆盖本仓库中的代码与文档**。
-
-**不覆盖**通过 `tools/fetch_connectome.py` 从外部获取的果蝇连接组数据：
-
-- `male-cns:v1.0`（neuPrint，Janelia Research Campus）以 **CC-BY-4.0** 提供。
-  使用、再分发或基于它发表成果时，必须遵守 CC-BY-4.0 的署名要求。
-  详见 `NOTICE` 与 `docs/03-data-and-license.md`。
-
-本仓库**不分发**这些数据文件（`*.npz` 已在 `.gitignore` 中排除），
-只提供抓取工具；数据由使用者在自己的环境中获取并自行承担许可义务。
-
-`synthetic-*` 规格的合成图由本仓库的程序化生成器产出，无第三方权利，
-以 CC0-1.0 对待（见 `docs/03-data-and-license.md`）。

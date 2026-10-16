@@ -1,0 +1,85 @@
+# NOTICE — 第三方内容与许可归属
+
+本仓库的**代码与文档**以 MIT 许可发布（见 `LICENSE`）。
+以下是其中涉及第三方权利的部分，以及各自的许可与归属。
+
+---
+
+## 一、果蝇连接组数据（最重要的一项）
+
+本仓库**不分发**任何连接组数据文件。下表列出的是使用者通过
+`tools/fetch_connectome.py` 自行获取的数据及其许可，**必须由使用者自行遵守**。
+
+| 数据集 | 来源 | 许可 | 是否需要署名 |
+|---|---|---|---|
+| `male-cns:v1.0` | [neuPrint](https://neuprint.janelia.org)（Janelia Research Campus） | **CC-BY-4.0** | **是** |
+
+### CC-BY-4.0 的署名要求
+
+使用 `male-cns:v1.0` 的派生结果（包括本仓库抓取出的 `data/male-cns-*.npz`）时，
+须在发表物中给出署名与许可链接。本仓库已在两处登记该信息，可直接引用：
+
+- 数据文件的元数据字段：`ConnectomeMeta.license` / `license_url` / `source`
+- 文档：[`docs/03-data-and-license.md`](docs/03-data-and-license.md)
+
+建议的署名文本：
+
+> Connectome data derived from `male-cns:v1.0`, obtained via neuPrint
+> (Janelia Research Campus), licensed under CC-BY-4.0
+> (https://creativecommons.org/licenses/by/4.0/).
+
+### 数据中哪些是实测、哪些是建模选择
+
+`ConnectomeMeta.notes` 与 `docs/03-data-and-license.md` 逐项区分了两者，
+引用时请勿混淆：
+
+- **来自数据**：神经元类型、突触数（聚合后）、递质预测（用于判定抑制性）、`class` 模块标注
+- **人为设定**：LIF 神经元动力学参数、权重量纲与压缩方式、递质符号的简化处理
+
+---
+
+## 二、合成图（无第三方权利）
+
+`synthetic-<n>` / `synthetic-<n>-rewired` 规格由本仓库的
+`flycore/connectome.py` 程序化生成，**不是任何真实果蝇的数据**。
+它只在若干拓扑统计量上对齐真实连接组（重尾入度、模块化、富俱乐部、
+高递归、约 12% 抑制比例）。
+
+自我声明为 CC0-1.0 对待，无第三方权利。**要谈"真实结构"必须换用真实连接组。**
+
+---
+
+## 三、Python 依赖
+
+均为宽松许可（BSD / MIT / Apache-2.0），与 MIT 兼容。各自版权归原作者所有。
+
+| 包 | 许可 |
+|---|---|
+| fastapi, uvicorn, httpx | MIT / BSD-3-Clause |
+| pydantic | MIT |
+| numpy | BSD-3-Clause |
+| scipy | BSD-3-Clause |
+| pytest（开发依赖） | MIT |
+| neuprint-python, pandas（可选） | Apache-2.0 / BSD |
+| pyarrow（可选） | Apache-2.0 |
+
+## 四、前端依赖
+
+| 包 | 许可 |
+|---|---|
+| vue, vue-router, element-plus, @element-plus/icons-vue | MIT |
+| vue-echarts | MIT |
+| echarts | Apache-2.0 |
+| axios | MIT |
+| vite, sass, @vitejs/plugin-vue（开发依赖） | MIT |
+
+---
+
+## 五、本仓库中不存在的第三方内容
+
+为免误解，明确声明：
+
+- 不含任何从网页、论文或代码仓库复制的第三方源代码片段
+- 不含任何真实果蝇的原始图像、显微数据或未公开数据
+- 不含模型权重文件（神经网络的读出器权重在本仓库中为**随机初始化**，
+  由固定种子生成，不是训练得到的产物）

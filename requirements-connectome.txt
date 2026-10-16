@@ -1,0 +1,10 @@
+# 真实连接组接入所需的额外依赖（可选装）。
+# 抓取工具在缺少这些包时会明确报错退出，不会静默回退成合成图。
+#
+#   pip install -r requirements-connectome.txt
+#
+# neuPrint token 在 https://neuprint.janelia.org 账户页生成后导出为环境变量：
+#   export NEUPRINT_TOKEN=xxxx
+neuprint-python>=0.3.5
+pandas>=2.0
+pyarrow>=14.0

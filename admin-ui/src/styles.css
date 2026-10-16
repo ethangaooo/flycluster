@@ -1,0 +1,266 @@
+/* FlyCluster 控制台主题
+   调性：科学仪器。深底、低饱和、精确的数字排版；强调色只用于状态与关键指标，
+   避免"每个数字都在喊"的仪表盘通病。
+
+   主题机制：所有颜色都走语义 token（--fc-*），`html.dark` / `html.light` 各给一套值。
+   **不要在组件里写死颜色，也不要引用未定义的变量名**——
+   CSS 变量未定义时属性会退化成初始值（`fill` 退化为黑色），
+   在深色底上表现成"东西看不见了"，而且不报任何错。 */
+
+:root,
+html.dark {
+  color-scheme: dark;
+
+  --fc-bg: #0e1116;
+  --fc-surface: #161b22;
+  --fc-surface-2: #1c222b;
+  --fc-border: #262d38;
+  --fc-border-strong: #333c4a;
+  --fc-text: #e6edf3;
+  --fc-text-dim: #9aa7b4;
+  --fc-text-faint: #6b7785;
+  --fc-accent: #35c9c0;
+  --fc-accent-dim: #1f6f6a;
+  --fc-warn: #d9a441;
+  --fc-danger: #e5534b;
+  --fc-ok: #3fb950;
+
+  /* 语义色：之前缺这几个 token，组件里就去引了不存在的 --color-* */
+  --fc-info: #58a6ff;
+  --fc-info-bg: rgba(88, 166, 255, .16);
+  --fc-ok-bg: rgba(63, 185, 80, .12);
+  --fc-warn-bg: rgba(217, 164, 65, .12);
+  --fc-danger-bg: rgba(229, 83, 75, .12);
+
+  /* 棋盘与棋子专用。棋子必须**实色**且与棋盘底色有明显明度差，
+     否则在深色底上会糊成一片——这是之前"看不清棋子"的直接原因。 */
+  --fc-board-bg: #0b0f14;
+  --fc-board-line: #39434f;
+  --fc-board-line-strong: #5a6675;
+  --fc-cell-hollow: #171d25;
+  --fc-piece-fly: #2fc7bc;
+  --fc-piece-fly-edge: #7ff0e8;
+  --fc-piece-fly-ink: #03211f;
+  --fc-piece-pc: #e0a83f;
+  --fc-piece-pc-edge: #ffd98a;
+  --fc-piece-pc-ink: #2b1c00;
+  --fc-piece-hint: #4a5462;
+
+  --fc-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --fc-radius: 10px;
+}
+
+html.light {
+  color-scheme: light;
+
+  --fc-bg: #f4f6f8;
+  --fc-surface: #ffffff;
+  --fc-surface-2: #f0f2f5;
+  --fc-border: #dfe3e9;
+  --fc-border-strong: #c3c9d3;
+  --fc-text: #171b21;
+  --fc-text-dim: #4b5361;
+  --fc-text-faint: #78818f;
+  --fc-accent: #0d7d74;
+  --fc-accent-dim: #9fd8d3;
+  --fc-warn: #9a6206;
+  --fc-danger: #c0392f;
+  --fc-ok: #1f7a34;
+
+  --fc-info: #1d6fd0;
+  --fc-info-bg: rgba(29, 111, 208, .12);
+  --fc-ok-bg: rgba(31, 122, 52, .12);
+  --fc-warn-bg: rgba(154, 98, 6, .12);
+  --fc-danger-bg: rgba(192, 57, 47, .12);
+
+  /* 亮色下的棋盘用木色，棋子用深色描边——更接近实体棋盘，也更耐看 */
+  --fc-board-bg: #e9dfc7;
+  --fc-board-line: #b9ab89;
+  --fc-board-line-strong: #8d7f5f;
+  --fc-cell-hollow: #f3ecd9;
+  --fc-piece-fly: #0d7d74;
+  --fc-piece-fly-edge: #064e48;
+  --fc-piece-fly-ink: #ffffff;
+  --fc-piece-pc: #c2410c;
+  --fc-piece-pc-edge: #7c2d12;
+  --fc-piece-pc-ink: #ffffff;
+  --fc-piece-hint: #a2967c;
+}
+
+/* ---- 把 Element Plus 的主题 token 接到我们自己的色板上。
+   官方深色变量解决"组件不再是浅色主题"，这里再让它们与我们的调性一致。 ---- */
+html.dark {
+  --el-color-primary: var(--fc-accent);
+  --el-bg-color: var(--fc-surface);
+  --el-bg-color-page: var(--fc-bg);
+  --el-bg-color-overlay: var(--fc-surface-2);
+  --el-text-color-primary: var(--fc-text);
+  --el-text-color-regular: var(--fc-text-dim);
+  --el-text-color-secondary: var(--fc-text-faint);
+  --el-text-color-placeholder: var(--fc-text-faint);
+  --el-text-color-disabled: var(--fc-text-faint);
+  --el-border-color: var(--fc-border-strong);
+  --el-border-color-light: var(--fc-border);
+  --el-border-color-lighter: var(--fc-border);
+  --el-border-color-extra-light: var(--fc-border);
+  --el-fill-color: var(--fc-surface-2);
+  --el-fill-color-light: var(--fc-surface-2);
+  --el-fill-color-lighter: var(--fc-surface-2);
+  --el-fill-color-blank: var(--fc-surface);
+  --el-mask-color: rgba(14, 17, 22, .75);
+}
+html.light {
+  --el-color-primary: var(--fc-accent);
+  --el-bg-color: var(--fc-surface);
+  --el-bg-color-page: var(--fc-bg);
+  --el-bg-color-overlay: var(--fc-surface);
+  --el-text-color-primary: var(--fc-text);
+  --el-text-color-regular: var(--fc-text-dim);
+  --el-text-color-secondary: var(--fc-text-faint);
+  --el-border-color: var(--fc-border-strong);
+  --el-border-color-light: var(--fc-border);
+  --el-border-color-lighter: var(--fc-border);
+  --el-fill-color-light: var(--fc-surface-2);
+  --el-fill-color-blank: var(--fc-surface);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app { height: 100%; margin: 0; }
+
+body {
+  background: var(--fc-bg);
+  color: var(--fc-text);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei",
+    "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- 侧栏导航。Element Plus 的菜单默认按浅色主题给文字色，
+   在深色侧栏上就是"深灰字压深色底"。这里显式给出四态（常态/悬停/选中/选中悬停）。 ---- */
+.fc-nav-menu { border-right: none !important; background: transparent !important; }
+.fc-nav-menu .el-menu-item {
+  height: 38px;
+  line-height: 38px;
+  margin: 3px 8px;
+  border-radius: 8px;
+  color: var(--fc-text-dim) !important;
+  font-size: 13px;
+}
+.fc-nav-menu .el-menu-item .el-icon { color: inherit; }
+.fc-nav-menu .el-menu-item:hover,
+.fc-nav-menu .el-menu-item:focus {
+  background: var(--fc-surface-2) !important;
+  color: var(--fc-text) !important;
+}
+.fc-nav-menu .el-menu-item.is-active {
+  background: var(--fc-info-bg) !important;
+  color: var(--fc-accent) !important;
+  font-weight: 500;
+}
+.fc-nav-menu .el-menu-item.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 9px; bottom: 9px;
+  width: 3px; border-radius: 0 2px 2px 0;
+  background: var(--fc-accent);
+}
+
+.fc-num { font-family: var(--fc-mono); font-variant-numeric: tabular-nums; }
+
+.fc-page { padding: 20px 24px 40px; }
+
+.fc-page-title {
+  font-size: 17px; font-weight: 600; letter-spacing: .2px; margin: 0 0 4px;
+}
+.fc-page-sub { color: var(--fc-text-faint); font-size: 12px; margin: 0 0 18px; line-height: 1.6; }
+
+.fc-card {
+  background: var(--fc-surface);
+  border: 1px solid var(--fc-border);
+  border-radius: var(--fc-radius);
+  padding: 16px 18px;
+}
+
+.fc-card-title {
+  font-size: 13px; font-weight: 600; color: var(--fc-text);
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+}
+.fc-card-title .fc-hint { font-weight: 400; color: var(--fc-text-faint); font-size: 11px; }
+
+.fc-grid { display: grid; gap: 14px; }
+.fc-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.fc-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.fc-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 1180px) {
+  .fc-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fc-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fc-grid-2 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* 指标卡 */
+.fc-metric { display: flex; flex-direction: column; gap: 6px; }
+.fc-metric-label { color: var(--fc-text-dim); font-size: 11px; letter-spacing: .3px; }
+.fc-metric-value { font-family: var(--fc-mono); font-size: 22px; font-weight: 600; line-height: 1.1; }
+.fc-metric-unit { font-size: 11px; color: var(--fc-text-faint); margin-left: 4px; font-weight: 400; }
+.fc-metric-note { font-size: 11px; color: var(--fc-text-faint); line-height: 1.5; }
+.fc-metric.ok .fc-metric-value { color: var(--fc-ok); }
+.fc-metric.warn .fc-metric-value { color: var(--fc-warn); }
+.fc-metric.danger .fc-metric-value { color: var(--fc-danger); }
+.fc-metric.accent .fc-metric-value { color: var(--fc-accent); }
+
+/* 状态点 */
+.fc-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.fc-dot.ok { background: var(--fc-ok); box-shadow: 0 0 0 3px rgba(63,185,80,.15); }
+.fc-dot.bad { background: var(--fc-danger); box-shadow: 0 0 0 3px rgba(229,83,75,.15); }
+.fc-dot.idle { background: var(--fc-text-faint); }
+
+/* 归属说明块 */
+.fc-attrib { display: grid; grid-template-columns: 132px 1fr; gap: 6px 14px; font-size: 12px; line-height: 1.65; }
+.fc-attrib dt { color: var(--fc-text-dim); }
+.fc-attrib dd { margin: 0; color: var(--fc-text); }
+
+/* 表格与代码 */
+.fc-mono-block {
+  font-family: var(--fc-mono); font-size: 11.5px; line-height: 1.7;
+  background: var(--fc-surface-2); border: 1px solid var(--fc-border);
+  border-radius: 8px; padding: 10px 12px; overflow: auto; max-height: 300px;
+  white-space: pre-wrap; word-break: break-all; color: var(--fc-text-dim);
+}
+
+.fc-tag {
+  display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px;
+  border-radius: 5px; font-size: 11px; border: 1px solid var(--fc-border-strong);
+  color: var(--fc-text-dim);
+}
+.fc-tag.ok { color: var(--fc-ok); border-color: rgba(63,185,80,.4); background: rgba(63,185,80,.08); }
+.fc-tag.bad { color: var(--fc-danger); border-color: rgba(229,83,75,.4); background: rgba(229,83,75,.08); }
+.fc-tag.warn { color: var(--fc-warn); border-color: rgba(217,164,65,.4); background: rgba(217,164,65,.08); }
+
+/* Element Plus 深色对齐 */
+.el-card, .el-table, .el-table tr, .el-table th.el-table__cell,
+.el-descriptions__body, .el-dialog, .el-drawer, .el-collapse-item__header,
+.el-collapse-item__wrap {
+  background-color: var(--fc-surface) !important;
+  color: var(--fc-text) !important;
+}
+.el-table td.el-table__cell, .el-table th.el-table__cell.is-leaf {
+  border-bottom: 1px solid var(--fc-border) !important;
+}
+.el-table--border, .el-table--border .el-table__cell { border-color: var(--fc-border) !important; }
+.el-table tr:hover > td.el-table__cell { background-color: var(--fc-surface-2) !important; }
+.el-descriptions__label, .el-descriptions__content { color: var(--fc-text-dim) !important; }
+.el-collapse-item__header, .el-collapse-item__wrap { border-color: var(--fc-border) !important; }
+.el-tabs__item { color: var(--fc-text-dim) !important; }
+.el-tabs__item.is-active { color: var(--fc-accent) !important; }
+.el-tabs__nav-wrap::after { background-color: var(--fc-border) !important; }
+.el-empty__description p { color: var(--fc-text-faint) !important; }
+.el-form-item__label { color: var(--fc-text-dim) !important; }
+.el-select__wrapper, .el-input__wrapper, .el-textarea__inner {
+  background-color: var(--fc-surface-2) !important;
+  box-shadow: 0 0 0 1px var(--fc-border) inset !important;
+}
+.el-input__inner, .el-textarea__inner, .el-select__placeholder { color: var(--fc-text) !important; }
+.el-table__empty-text { color: var(--fc-text-faint) !important; }
+.el-loading-mask { background-color: rgba(14,17,22,.7) !important; }

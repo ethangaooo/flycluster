@@ -1,0 +1,262 @@
+# FlyCluster：Docker 多容器编排
+#
+#   记忆中枢（独立持久化卷） + 环境/评估 + 4 个脑节点容器 + 中枢调度（含开放 API 与管理端）
+#
+#   docker compose up --build
+#   控制台：http://localhost:8800/
+#   API：  http://localhost:8800/v1/health
+#
+# 关键纪律：脑容器之间**不直连**，消息一律经中枢调度转发，并在调度器里统一记账
+# （延迟、丢失、字节数）。否则通信预算无法核算，实验失去意义。
+
+# 五个服务共用同一份 Dockerfile。显式给出 image 名，compose 才会只构建一次并复用，
+# 否则它会为每个服务各构建一遍（每次都要跑 pip install）。
+x-flycluster: &flycluster
+  build:
+    context: .
+    # 国内网络下官方 PyPI 很慢。不改文件，用环境变量覆盖即可：
+    #   PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple docker compose up --build
+    args:
+      PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+  image: flycluster:dev
+
+x-brain-env: &brain-env
+  MEMORY_HUB_URL: http://memory-hub:8100
+  BRAIN_CONNECTOME: ${BRAIN_CONNECTOME:-synthetic-2000}
+  # 只读挂入的目录（见下方 ./data:/connectomes:ro），用于加载抓取到的真实连接组 .npz
+  BRAIN_CONNECTOME_DIR: /connectomes
+  BRAIN_STEPS_PER_TICK: ${BRAIN_STEPS_PER_TICK:-20}
+  BRAIN_MESSAGE_KIND: ${BRAIN_MESSAGE_KIND:-learned_compressed}
+  BRAIN_SYNAPTIC_SCALE: ${BRAIN_SYNAPTIC_SCALE:-0.35}
+  BRAIN_BACKGROUND: ${BRAIN_BACKGROUND:-14}
+  BRAIN_NOISE: ${BRAIN_NOISE:-6}
+  DATA_DIR: /app/data
+
+services:
+  memory-hub:
+    <<: *flycluster
+    command: uvicorn services.memory_hub.app:app --host 0.0.0.0 --port 8100
+    environment:
+      MEMORY_DB_PATH: /app/data/memory_hub.sqlite3
+    volumes:
+      - memory-data:/app/data
+    ports:
+      - "8100:8100"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8100/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  env-service:
+    <<: *flycluster
+    command: uvicorn services.env.app:app --host 0.0.0.0 --port 8200
+    ports:
+      - "8200:8200"
+
+  brain-1:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-0
+      BRAIN_SEED: "0"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-2:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-1
+      BRAIN_SEED: "1"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-3:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-2
+      BRAIN_SEED: "2"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-4:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-3
+      BRAIN_SEED: "3"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-5:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-4
+      BRAIN_SEED: "4"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-6:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-5
+      BRAIN_SEED: "5"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-7:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-6
+      BRAIN_SEED: "6"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-8:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-7
+      BRAIN_SEED: "7"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-9:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-8
+      BRAIN_SEED: "8"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-10:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-9
+      BRAIN_SEED: "9"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-11:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-10
+      BRAIN_SEED: "10"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-12:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-11
+      BRAIN_SEED: "11"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-13:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-12
+      BRAIN_SEED: "12"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-14:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-13
+      BRAIN_SEED: "13"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-15:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-14
+      BRAIN_SEED: "14"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  brain-16:
+    <<: *flycluster
+    command: uvicorn services.brain.app:app --host 0.0.0.0 --port 8000
+    environment:
+      <<: *brain-env
+      BRAIN_NODE_ID: node-15
+      BRAIN_SEED: "15"
+    volumes:
+      - node-data:/app/data
+      - ./data:/connectomes:ro
+
+  orchestrator:
+    <<: *flycluster
+    command: uvicorn services.orchestrator.app:app --host 0.0.0.0 --port 8000
+    environment:
+      FLYCLUSTER_API_KEYS: ${FLYCLUSTER_API_KEYS:-local:dev-local-key:600}
+      FLYCLUSTER_MEMORY_HUB_URL: http://memory-hub:8100
+      # 页面上的"数据来源"下拉要列出磁盘上的真实连接组，所以调度器也必须能读到它们。
+      # 只挂给脑容器是不够的：调度器读不到，下拉框里就只剩合成图。
+      FLYCLUSTER_CONNECTOME_DIR: /connectomes
+      FLYCLUSTER_BRAIN_URLS: http://brain-1:8000,http://brain-2:8000,http://brain-3:8000,http://brain-4:8000,http://brain-5:8000,http://brain-6:8000,http://brain-7:8000,http://brain-8:8000,http://brain-9:8000,http://brain-10:8000,http://brain-11:8000,http://brain-12:8000,http://brain-13:8000,http://brain-14:8000,http://brain-15:8000,http://brain-16:8000
+      FLYCLUSTER_DATA: /app/data
+      FLYCLUSTER_ADMIN_DIST: /app/admin-ui/dist
+    volumes:
+      - memory-data:/app/data
+      - ./data:/connectomes:ro
+      - ./artifacts:/app/artifacts
+      - ./admin-ui/dist:/app/admin-ui/dist:ro
+    ports:
+      - "8800:8000"
+    depends_on:
+      - memory-hub
+      - brain-1
+      - brain-2
+      - brain-3
+      - brain-4
+      - env-service
+
+volumes:
+  memory-data:
+  node-data:

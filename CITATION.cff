@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "若本项目对你的研究有帮助，请按下面的信息引用。"
+type: software
+title: "FlyCluster：果蝇连接组约束的多智能体计算验证平台"
+version: 0.1.0
+date-released: "2026-10-16"
+license: MIT
+repository-code: "https://github.com/<your-account>/flycluster"
+url: "https://github.com/<your-account>/flycluster"
+abstract: >-
+  一个用于回答单一问题的实验平台：在局部观察、有限通信的协作搜索任务中，
+  果蝇连接组派生的脉冲回路能否比同预算的普通回路或经典策略带来可重复的收益。
+  平台内置保度重连对照、随机储备池、GRU、经典策略与"无脑"基线，
+  共享同一套记忆/通信/记录机制以保证对照公平性；所有性能数字与实时比、
+  脉冲丢弃率、NaN 事件同时上报。主对照结论为：门 1 通过、门 2 与门 3 未通过，
+  按协议应停止扩大脑模型。另附可交互的棋盘演示（五子棋/中国象棋/跳棋），
+  用于可视化集群的决策过程。
+authors:
+  - family-names: Gao
+    given-names: Qiuhai
+keywords:
+  - connectome
+  - Drosophila
+  - spiking neural network
+  - multi-agent
+  - reproducibility
+  - negative results
+  - computational neuroscience

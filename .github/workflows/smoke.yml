@@ -1,0 +1,78 @@
+name: smoke
+
+# README 声称"21 项关键不变量全部通过"。这个工作流让那句话可以被核实，
+# 而不是只能相信作者。改动代码后 CI 会立刻给出真实结果。
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: 冒烟测试（不依赖网络与 Docker）
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 与 README 声明的已测试版本一致：Docker 用 3.12，本地开发用 3.13
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: 冒烟测试
+        # 显式传入解释器，避免 Makefile 里默认的 .venv/bin/python 不存在
+        run: make smoke PY="$(which python)"
+
+      - name: 棋类规则自测
+        # 象棋含长将/长捉/长兑/自然限着四类构造局面；五子棋与跳棋各自的自测
+        run: |
+          PYTHONPATH=. python services/games/gomoku.py
+          PYTHONPATH=. python services/games/xiangqi.py
+          PYTHONPATH=. python services/games/checkers.py
+
+      - name: 仓库卫生检查
+        # 这三条是仓库纪律，违反时应当失败，而不是靠人记得。
+        #
+        # 一开始这里写的是"未跟踪文件数"，但那在 CI 里恒为 0（checkout 之后没有未跟踪文件），
+        # 等于什么都没检查。真正要挡的是**已经提交进来的**东西——下面按"跟踪了什么"来判。
+        run: |
+          n=$(git ls-files | wc -l)
+          echo "跟踪文件数: $n"
+
+          echo "— 1) 不得跟踪数据集与运行产物 —"
+          if git ls-files | grep -E '\.(npz|npy|sqlite3|sqlite3-journal|jsonl)$'; then
+            echo "::error::跟踪了数据集/运行产物。它们是派生文件，应当重新生成而不是入库。"
+            exit 1
+          fi
+
+          echo "— 2) 不得跟踪个人绝对路径 —"
+          # 只扫**已跟踪**的文件。用 `grep -r` 扫工作树会把 .gitignore 忽略掉的
+          # 运行产物也算进来（那些文件本来就不入库），是假阳性。
+          hits=$(git ls-files -z | xargs -0 grep -InE '/Users/[A-Za-z]+/|/home/[A-Za-z]+/' 2>/dev/null || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "::error::发现个人绝对路径，请改为相对路径或环境变量。"
+            exit 1
+          fi
+
+          echo "— 3) 单文件不得超过 2 MB —"
+          big=$(git ls-files -z | xargs -0 -I{} sh -c \
+                'test -f "{}" && s=$(wc -c < "{}") && [ "$s" -gt 2097152 ] && echo "{} $((s/1024))KB"' 2>/dev/null)
+          if [ -n "$big" ]; then
+            echo "$big"
+            echo "::error::有大文件入库，多半是误提交；请加进 .gitignore 或改用外部存储。"
+            exit 1
+          fi
+          echo "全部通过。"

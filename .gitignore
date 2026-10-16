@@ -1,0 +1,60 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# ---- 前端 ----
+admin-ui/node_modules/
+admin-ui/dist/
+node_modules/
+
+# ---- 运行产物：一律不入库 ----
+#
+# 注意通配符的**递归性**。原先写的是 `data/*.sqlite3*` / `artifacts/*.json`，
+# 这些只匹配**顶层**文件，于是 `data/ui/memory_hub.sqlite3`（6 MB）、
+# `artifacts/<实验名>/local/*.jsonl`（每个约 1 MB，合计 619 MB）全部漏过忽略。
+# 实测：修正前 `git add .` 会提交 1213 个文件、639 MB 运行数据；
+# 修正后只剩源码与文档（不足 1 MB）。
+.tmp/
+local/
+**/local/
+data/local/
+data/testrun/
+data/dbg*/
+data/ui/
+**/*.sqlite3
+**/*.sqlite3-*
+**/*.jsonl
+
+# 结果产物：可由 README 里的命令重新生成。
+# 若确实要随仓库分发某次跑批的结果作为证据，请先脱敏其中的绝对路径，
+# 再用 `git add -f` 单独加入——不要整体放开这一条。
+artifacts/*
+!artifacts/.gitkeep
+
+# ---- 连接组数据 ----
+# 真实连接组（male-cns:v1.0）由 neuPrint 以 CC-BY-4.0 提供。
+# 本仓库**不分发**这些派生文件，只提供抓取工具：
+#   python tools/fetch_connectome.py online --dataset male-cns:v1.0 ...
+# 既避免仓库带二进制，也避免许可再分发的问题；使用时须遵守 CC-BY-4.0 的署名要求（见 NOTICE）。
+*.npz
+*.npy
+
+# ---- 密钥与本地配置 ----
+# 绝不提交任何真实密钥。NEUPRINT_TOKEN 从环境变量读取，不落盘。
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- 编辑器 / 系统 ----
+.DS_Store
+.idea/
+.vscode/
+*.swp
